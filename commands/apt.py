@@ -40,8 +40,11 @@ async def apt_cmd(event, args, sent=None):
         # 支持对着 .py 文件回复自动安装
         if not param and getattr(event, 'reply_to_msg_id', None):
             reply_msg = await event.get_reply_message()
-            if reply_msg and reply_msg.document and reply_msg.document.mime_type == 'text/x-python' and reply_msg.document.file_name.endswith('.py'):
-                fname = reply_msg.document.file_name
+            if reply_msg and reply_msg.document and reply_msg.document.mime_type == 'text/x-python':
+                doc = reply_msg.document
+                fname = getattr(doc, 'file_name', None) or getattr(doc, 'filename', None) or getattr(doc, 'name', None)
+                if fname and fname.endswith('.py'):
+                
                 target_path = os.path.join('commands', fname)
                 await edit(f"[Alyce] 正在保存插件文件 {fname} ...")
                 try:
