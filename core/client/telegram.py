@@ -30,7 +30,7 @@ class TelegramClient(BaseClient):
         # Alyce +command system integration
         try:
             from commands.listener import CommandListener
-            listener = CommandListener(prefix='+')
+            listener = CommandListener(prefixes=['+'])
             listener.setup(self)
             self.logger.info("Alyce 指令监听系统已加载，直接输入 +help 或 +apt 等命令。");
         except Exception as e:
