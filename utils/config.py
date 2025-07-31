@@ -1,1 +1,41 @@
-﻿"""閰嶇疆绠＄悊妯″潡澶勭悊鐜鍙橀噺鍜岄厤缃枃浠?"""import osfrom pathlib import Pathfrom typing import Optional, Dict, Anyfrom dotenv import load_dotenvclass Config:    """閰嶇疆绠＄悊绫?""        def __init__(self):        # 鍔犺浇 .env 鏂囦欢        self.env_path = Path('.') / '.env'        load_dotenv(self.env_path)                # 榛樿閰嶇疆        self._defaults = {            'API_ID': '',            'API_HASH': '',            'PHONE': '',            'SESSION_STRING': '',  # 鍙€夛紝鐢ㄤ簬蹇€熺櫥褰?            'SESSION_PATH': 'session',  # 浼氳瘽鏂囦欢淇濆瓨鐩綍            'DEBUG': 'False',        }            def get(self, key: str, default: Any = None) -> str:        """鑾峰彇閰嶇疆椤?""        value = os.getenv(key, self._defaults.get(key, default))        return str(value) if value is not None else ''        def get_bool(self, key: str, default: bool = False) -> bool:        """鑾峰彇甯冨皵绫诲瀷閰嶇疆"""        value = self.get(key, str(default)).lower()        return value in ('true', '1', 't', 'y', 'yes')        def get_int(self, key: str, default: int = 0) -> int:        """鑾峰彇鏁存暟绫诲瀷閰嶇疆"""        try:            return int(self.get(key, str(default)))        except (ValueError, TypeError):            return default        def get_session_path(self) -> Path:        """鑾峰彇浼氳瘽鏂囦欢璺緞"""        session_dir = Path(self.get('SESSION_PATH'))        session_dir.mkdir(parents=True, exist_ok=True)        return session_dir / 'alyce.session'        def validate(self) -> bool:        """楠岃瘉蹇呰閰嶇疆"""        required = ['API_ID', 'API_HASH', 'PHONE']        return all(self.get(key) for key in required)# 鍏ㄥ眬閰嶇疆瀹炰緥config = Config()
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+class Config:
+    def __init__(self):
+        self.env_path = Path('.') / '.env'
+        load_dotenv(self.env_path)
+        self._defaults = {
+            'API_ID': '',
+            'API_HASH': '',
+            'PHONE': '',
+            'SESSION_STRING': '',
+            'SESSION_PATH': 'session',
+            'DEBUG': 'False',
+        }
+
+    def get(self, key: str, default=None) -> str:
+        value = os.getenv(key, self._defaults.get(key, default))
+        return str(value) if value is not None else ''
+
+    def get_bool(self, key: str, default: bool = False) -> bool:
+        value = self.get(key, str(default)).lower()
+        return value in ('true', '1', 't', 'y', 'yes')
+
+    def get_int(self, key: str, default: int = 0) -> int:
+        try:
+            return int(self.get(key, str(default)))
+        except (ValueError, TypeError):
+            return default
+
+    def get_session_path(self) -> Path:
+        session_dir = Path(self.get('SESSION_PATH'))
+        session_dir.mkdir(parents=True, exist_ok=True)
+        return session_dir / 'alyce.session'
+
+    def validate(self) -> bool:
+        required = ['API_ID', 'API_HASH', 'PHONE']
+        return all(self.get(key) for key in required)
+
+config = Config()
