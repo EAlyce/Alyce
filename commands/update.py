@@ -23,17 +23,22 @@ async def update_cmd(event, args, sent=None):
                 logging.exception(f"edit 消息异常: {e}")
     try:
         # 1. git pull
+        import logging
+        logger = logging.getLogger("alyce")
         proc = await asyncio.create_subprocess_exec(
             'git', 'pull',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        stdout, stderr = await proc.communicate()
-        git_msg = stdout.decode().strip() or stderr.decode().strip()
+        git_stdout, git_stderr = await proc.communicate()
+        git_msg = git_stdout.decode().strip() or git_stderr.decode().strip()
+        # 实时写入日志
+        for line in (git_stdout.decode().splitlines() + git_stderr.decode().splitlines()):
+            logger.info(f"[git] {line}")
         if proc.returncode != 0:
-            await safe_edit(f"[Alyce] 更新失败：\n{git_msg}")
+            await safe_edit(f"[Alyce] 更新失败，详细日志见 logs/alyce-YYYY-MM-DD.log")
             return
-        msg += f"\n\n[Alyce] 代码已更新：\n{git_msg}\n正在升级依赖..."
+        msg += f"\n\n[Alyce] 代码已更新，详细日志见 logs/alyce-YYYY-MM-DD.log\n正在升级依赖..."
         await safe_edit(msg)
         # 2. pip install -r requirements.txt
         import sys
@@ -41,6 +46,7 @@ async def update_cmd(event, args, sent=None):
             ['pip3', 'install', '-r', 'requirements.txt'],
             [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
         ]
+        pip_log = []
         for pip_cmd in pip_cmds:
             try:
                 proc2 = await asyncio.create_subprocess_exec(
@@ -50,15 +56,19 @@ async def update_cmd(event, args, sent=None):
                 )
                 stdout2, stderr2 = await proc2.communicate()
                 pip_msg = stdout2.decode().strip() or stderr2.decode().strip()
+                # 写入日志
+                for line in (stdout2.decode().splitlines() + stderr2.decode().splitlines()):
+                    logger.info(f"[pip] {line}")
                 if proc2.returncode == 0:
                     break
             except FileNotFoundError:
                 pip_msg = f"未找到 pip 命令：{' '.join(pip_cmd)}"
+                logger.error(pip_msg)
                 continue
         else:
-            await safe_edit(msg + f"\n\n[Alyce] 依赖升级失败：\n{pip_msg}")
+            await safe_edit(msg + f"\n\n[Alyce] 依赖升级失败，详细日志见 logs/alyce-YYYY-MM-DD.log")
             return
-        msg += f"\n\n[Alyce] 依赖已升级：\n{pip_msg}\n正在检测插件热加载..."
+        msg += f"\n\n[Alyce] 依赖已升级，详细日志见 logs/alyce-YYYY-MM-DD.log\n正在检测插件热加载..."
         await safe_edit(msg)
         # 3. 热加载插件（仅变更 commands/ 目录时无需重启）
         import os
