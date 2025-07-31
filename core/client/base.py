@@ -1,1 +1,67 @@
-﻿"""Alyce 瀹㈡埛绔熀绫?鏈ā鍧椾负鎵€鏈?Telegram 瀹㈡埛绔疄鐜版彁渚涚粺涓€鍩虹被锛屽畾涔変簡杩炴帴銆佹柇寮€銆佹彃浠剁鐞嗙瓑鏍稿績鎺ュ彛銆?"""import asynciofrom abc import ABC, abstractmethodfrom typing import Any, Dict, Optional, Typefrom telethon import TelegramClientfrom alyce.core.plugin.manager import PluginManagerclass AlyceClient(ABC):    """Alyce 瀹㈡埛绔熀绫?""        def __init__(self, **kwargs):        """        鍒濆鍖?Alyce 瀹㈡埛绔?                Args:            **kwargs: 瀹㈡埛绔厤缃弬鏁?        """        self.config = kwargs        self.client: Optional[TelegramClient] = None        self.plugin_manager = PluginManager(self)        @abstractmethod    async def connect(self) -> bool:        """杩炴帴鍒?Telegram 鏈嶅姟鍣?""        pass        @abstractmethod    async def disconnect(self):        """鏂紑涓?Telegram 鏈嶅姟鍣ㄧ殑杩炴帴"""        pass        @abstractmethod    async def is_connected(self) -> bool:        """妫€鏌ユ槸鍚﹀凡杩炴帴"""        pass        async def run(self):        """杩愯瀹㈡埛绔富寰幆"""        try:            # 杩炴帴鍒?Telegram            if not await self.connect():                raise RuntimeError("Failed to connect to Telegram")                        # 鍒濆鍖栨彃浠?            await self.plugin_manager.initialize()                        # 淇濇寔杩愯鐩村埌鏂紑杩炴帴            while await self.is_connected():                await asyncio.sleep(1)                        except asyncio.CancelledError:            pass        finally:            # 娓呯悊璧勬簮            await self.plugin_manager.cleanup()            await self.disconnect()        def __str__(self) -> str:        return f"{self.__class__.__name__}(connected={self.client is not None and self.client.is_connected()})"
+"""Alyce Client Base Class
+
+This module provides a unified base class for all Telegram client implementations,
+defining core interfaces for connecting, disconnecting, and plugin management.
+"""
+
+import asyncio
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional, Type
+
+from telethon import TelegramClient
+
+from core.plugin.manager import PluginManager
+
+
+class BaseClient(ABC):
+    """Alyce Client Base Class"""
+
+    def __init__(self, **kwargs):
+        """
+        Initializes the Alyce Client.
+
+        Args:
+            **kwargs: Client configuration parameters.
+        """
+        self.config = kwargs
+        self.client: Optional[TelegramClient] = None
+        self.plugin_manager = PluginManager(self)
+
+    @abstractmethod
+    async def connect(self) -> bool:
+        """Connect to the Telegram server."""
+        pass
+
+    @abstractmethod
+    async def disconnect(self):
+        """Disconnect from the Telegram server."""
+        pass
+
+    @abstractmethod
+    async def is_connected(self) -> bool:
+        """Check if the client is connected."""
+        pass
+
+    async def run(self):
+        """Run the client's main loop."""
+        try:
+            # Connect to Telegram
+            if not await self.connect():
+                raise RuntimeError("Failed to connect to Telegram")
+
+            # Initialize plugins
+            await self.plugin_manager.initialize()
+
+            # Keep running until disconnected
+            while await self.is_connected():
+                await asyncio.sleep(1)
+
+        except asyncio.CancelledError:
+            pass
+        finally:
+            # Cleanup resources
+            await self.plugin_manager.cleanup()
+            await self.disconnect()
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(connected={self.client is not None and self.client.is_connected()})"
