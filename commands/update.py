@@ -77,6 +77,7 @@ async def update_cmd(event, args, sent=None):
         steps[6] = "♻️ 所有更新已应用，Alyce 正在自动重启中..."
         msg = progress(steps)
         await safe_edit(msg)
+        import sys
         await asyncio.sleep(1)
         # os.execv 会替换进程，无法直接 edit，需在启动时检测是否为 update 后重启
         # 可以通过写入一个 .reboot 标记文件，启动后检测并 edit
