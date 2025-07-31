@@ -1,15 +1,1 @@
-"""
-Alyce - 模块化 Telegram 客户端框架
-
-提供基于插件的 Telegram 客户端功能，支持多种协议和代理。
-"""
-
-__version__ = "0.1.0"
-__author__ = "Your Name"
-__license__ = "MIT"
-
-# 导出核心组件
-from alyce.core.client.base import AlyceClient
-from alyce.core.plugin.manager import PluginManager
-
-__all__ = ['AlyceClient', 'PluginManager']
+﻿"""Alyce - 妯″潡鍖?Telegram 瀹㈡埛绔鏋?鎻愪緵鍩轰簬鎻掍欢鐨?Telegram 瀹㈡埛绔姛鑳斤紝鏀寔澶氱鍗忚鍜屼唬鐞嗐€?"""__version__ = "0.1.0"__author__ = "Your Name"__license__ = "MIT"# 瀵煎嚭鏍稿績缁勪欢from alyce.core.client.base import AlyceClientfrom alyce.core.plugin.manager import PluginManager__all__ = ['AlyceClient', 'PluginManager']

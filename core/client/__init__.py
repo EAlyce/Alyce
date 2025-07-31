@@ -1,13 +1,1 @@
-"""
-客户端模块
-
-包含不同协议的 Telegram 客户端实现
-"""
-
-from .base import BaseClient
-from .telegram import TelegramClient
-
-__all__ = [
-    'BaseClient',
-    'TelegramClient'
-]
+﻿"""瀹㈡埛绔ā鍧?鍖呭惈涓嶅悓鍗忚鐨?Telegram 瀹㈡埛绔疄鐜?"""from .base import BaseClientfrom .telegram import TelegramClient__all__ = [    'BaseClient',    'TelegramClient']

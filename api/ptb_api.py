@@ -1,11 +1,1 @@
-"""
-python-telegram-bot 兼容适配层 Scaffold
-"""
-from .base import BaseAPI
-
-class PTBAPI(BaseAPI):
-    """
-    兼容 python-telegram-bot 的 Alyce API 适配器（待完善）
-    """
-    def __init__(self, client):
-        self.client = client
+﻿"""python-telegram-bot 鍏煎閫傞厤灞?Scaffold"""from .base import BaseAPIclass PTBAPI(BaseAPI):    """    鍏煎 python-telegram-bot 鐨?Alyce API 閫傞厤鍣紙寰呭畬鍠勶級    """    def __init__(self, client):        self.client = client

@@ -1,11 +1,1 @@
-"""
-插件系统模块
-"""
-
-from .base import BasePlugin
-from .manager import PluginManager
-
-__all__ = [
-    'BasePlugin',
-    'PluginManager'
-]
+﻿"""鎻掍欢绯荤粺妯″潡"""from .base import BasePluginfrom .manager import PluginManager__all__ = [    'BasePlugin',    'PluginManager']

@@ -1,16 +1,1 @@
-"""
-中间件机制框架
-支持全局/插件级消息前置处理
-"""
-from typing import Callable, List, Any
-
-class MiddlewareManager:
-    def __init__(self):
-        self.middlewares: List[Callable] = []
-
-    def add(self, middleware: Callable):
-        self.middlewares.append(middleware)
-
-    async def run(self, *args, **kwargs):
-        for mw in self.middlewares:
-            await mw(*args, **kwargs)
+﻿"""涓棿浠舵満鍒舵鏋?鏀寔鍏ㄥ眬/鎻掍欢绾ф秷鎭墠缃鐞?"""from typing import Callable, List, Anyclass MiddlewareManager:    def __init__(self):        self.middlewares: List[Callable] = []    def add(self, middleware: Callable):        self.middlewares.append(middleware)    async def run(self, *args, **kwargs):        for mw in self.middlewares:            await mw(*args, **kwargs)

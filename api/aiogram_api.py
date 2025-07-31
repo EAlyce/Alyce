@@ -1,11 +1,1 @@
-"""
-aiogram 兼容适配层 Scaffold
-"""
-from .base import BaseAPI
-
-class AiogramAPI(BaseAPI):
-    """
-    兼容 aiogram 的 Alyce API 适配器（待完善）
-    """
-    def __init__(self, client):
-        self.client = client
+﻿"""aiogram 鍏煎閫傞厤灞?Scaffold"""from .base import BaseAPIclass AiogramAPI(BaseAPI):    """    鍏煎 aiogram 鐨?Alyce API 閫傞厤鍣紙寰呭畬鍠勶級    """    def __init__(self, client):        self.client = client

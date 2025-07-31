@@ -1,17 +1,1 @@
-"""
-Alyce 核心模块
-
-包含客户端、插件管理器、代理等核心功能
-"""
-
-from .client.base import BaseClient
-from .client.telegram import TelegramClient
-from .plugin.manager import PluginManager
-from .plugin.base import BasePlugin
-
-__all__ = [
-    'BaseClient',
-    'TelegramClient', 
-    'PluginManager',
-    'BasePlugin'
-]
+﻿"""Alyce 鏍稿績妯″潡鍖呭惈瀹㈡埛绔€佹彃浠剁鐞嗗櫒銆佷唬鐞嗙瓑鏍稿績鍔熻兘"""from .client.base import BaseClientfrom .client.telegram import TelegramClientfrom .plugin.manager import PluginManagerfrom .plugin.base import BasePlugin__all__ = [    'BaseClient',    'TelegramClient',     'PluginManager',    'BasePlugin']
