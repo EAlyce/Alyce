@@ -3,7 +3,7 @@ import importlib
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Type, TypeVar
-from alyce.core.plugin.base import BasePlugin
+from .base import BasePlugin
 
 T = TypeVar('T', bound='BasePlugin')
 
