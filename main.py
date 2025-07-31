@@ -83,6 +83,25 @@ if __name__ == "__main__":
     import time
     import os
     import sys
+    import glob
+    import sqlite3
+
+    # 检查 session 文件是否被锁
+    def is_sqlite_locked(session_glob='*.session'):
+        for sfile in glob.glob(session_glob):
+            try:
+                conn = sqlite3.connect(sfile, timeout=1)
+                conn.execute('BEGIN EXCLUSIVE')
+                conn.close()
+            except sqlite3.OperationalError as e:
+                if 'locked' in str(e):
+                    print(f"[Alyce] 检测到 session 文件被锁: {sfile}\n请确认没有多开 Alyce 或 Telethon 程序，或删除 session 文件后重试。")
+                    return True
+        return False
+
+    if is_sqlite_locked():
+        sys.exit(1)
+
     while True:
         try:
             exit_code = asyncio.run(main())
@@ -90,15 +109,6 @@ if __name__ == "__main__":
             print(f"[Alyce] 主循环异常: {e}")
             exit_code = 1
         except KeyboardInterrupt:
-            print("[Alyce] 收到 Ctrl+C，Alyce 将转入后台运行。")
-            try:
-                pid = os.fork()
-                if pid > 0:
-                    print(f"[Alyce] Alyce 已转入后台（PID: {pid}），你现在可以回到 shell。")
-                    sys.exit(0)
-                else:
-                    continue
-            except AttributeError:
-                print("[Alyce] 当前环境不支持 fork，无法转后台。请使用 nohup、tmux 或 screen。")
-                sys.exit(0)
-        time.sleep(0)
+            print("[Alyce] 收到 Ctrl+C，优雅退出。"); break
+        time.sleep(1)
+    sys.exit(exit_code)
