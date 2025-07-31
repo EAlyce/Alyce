@@ -31,7 +31,7 @@ async def help_cmd(event, args):
     groups = {}
     for m in cmds:
         groups.setdefault(m.group or '未分组', []).append(m)
-    msg = "Alyce 可用命令（分组/权限/用法）：\n"
+    msg = "欢迎使用Alyce机器人，该版本还在测试中 可用命令（分组/权限/用法）：\n"
     for group, items in groups.items():
         msg += f"\n[{group}]\n"
         for m in items:
