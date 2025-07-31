@@ -27,6 +27,13 @@ class TelegramClient(BaseClient):
             await self._login(phone)
         self._me = await self.client.get_me()
         self.logger.info(f"Logged in as {self._me.first_name} (@{getattr(self._me, 'username', None) or 'N/A'})")
+        # Alyce +command system integration
+        try:
+            from commands.base import setup_command_handlers
+            setup_command_handlers(self)
+            self.logger.info("Alyce +command system loaded. Type +help in Telegram chat to see commands.")
+        except Exception as e:
+            self.logger.error(f"Failed to load +command system: {e}")
         return True
 
     async def _login(self, phone: str):
