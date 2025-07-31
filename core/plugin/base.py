@@ -1,5 +1,7 @@
-""
+"""
 插件基类
+
+所有插件必须继承此类，定义了插件的基本元数据和生命周期钩子。
 """
 import logging
 from abc import ABC, abstractmethod
@@ -7,11 +9,11 @@ from typing import Any, Dict, Optional
 
 
 class Plugin(ABC):
-    """插件基类，所有插件必须继承此类"""
+    """插件基类, 所有插件必须继承此类"""
     
     # 插件元数据
     name: str = "base_plugin"
-    "插件唯一标识符，建议使用小写下划线命名"
+    "插件唯一标识符, 建议使用小写下划线命名"
     
     version: str = "0.1.0"
     "插件版本"
