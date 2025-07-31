@@ -52,7 +52,8 @@ async def update_cmd(event, args, sent=None):
         if proc.returncode != 0:
             await safe_edit(f"[Alyce] 更新失败")
             return
-        # 自动递增 PATCH 版本号
+        # 每次 update 必定递增 PATCH 版本号
+        import os
         import re
         version_path = os.path.join(os.path.dirname(__file__), '..', 'alyce', '__init__.py')
         version_path = os.path.abspath(version_path)
