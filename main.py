@@ -41,6 +41,22 @@ PHONE=your_phone_number  # with country code, e.g., +1234567890
         print("Connected to Telegram! Press Ctrl+C to exit.")
         print(f"Logged in as: {global_client.me.first_name} (@{global_client.me.username or 'N/A'})")
 
+        # 自动重启上线提示
+        import os
+        if os.path.isfile('.just_updated'):
+            try:
+                os.remove('.just_updated')
+                # 遍历所有群/频道，发上线提示
+                async for dialog in global_client.client.iter_dialogs():
+                    # 只发到群和超级群，不发私聊
+                    if getattr(dialog, 'is_group', False) or getattr(dialog, 'is_channel', False):
+                        try:
+                            await global_client.client.send_message(dialog.id, '✅ Alyce 已重启上线，欢迎继续使用！')
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+
         while await global_client.is_connected():
             await asyncio.sleep(1)
 

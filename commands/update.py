@@ -90,6 +90,12 @@ async def update_cmd(event, args, sent=None):
                     await disconnect_coro
         except Exception:
             pass
+        # 写入 just_updated 标记
+        try:
+            with open('.just_updated', 'w', encoding='utf-8') as f:
+                f.write('1')
+        except Exception:
+            pass
         os.execv(sys.executable, [sys.executable] + sys.argv)
     except Exception as e:
         await safe_edit(msg + f"\n\n[Alyce] 更新出错：{e}")
