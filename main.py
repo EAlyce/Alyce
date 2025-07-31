@@ -80,4 +80,18 @@ PHONE=your_phone_number  # with country code, e.g., +1234567890
         return 0
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    import time
+    while True:
+        try:
+            exit_code = asyncio.run(main())
+        except Exception as e:
+            print(f"[Alyce] 主循环异常: {e}")
+            exit_code = 1
+        except KeyboardInterrupt:
+            print("[Alyce] 收到 Ctrl+C，3 秒后自动重启...")
+            exit_code = 0
+        if exit_code == 0:
+            print("[Alyce] Alyce 退出，3 秒后自动重启...")
+        else:
+            print("[Alyce] Alyce 异常退出，3 秒后自动重启...")
+        time.sleep(0)
