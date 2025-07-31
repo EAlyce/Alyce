@@ -1,5 +1,7 @@
-""
+"""
 插件管理器
+
+负责插件的加载、初始化和卸载。
 """
 import asyncio
 import importlib
@@ -12,12 +14,12 @@ from alyce.core.plugin.base import BasePlugin
 T = TypeVar('T', bound='BasePlugin')
 
 class PluginManager:
-    """管理插件的加载、初始化和卸载"""
+    """管理插件的加载, 初始化和卸载"""
     
     def __init__(self, client):
         self.client = client
         self.logger = get_logger('alyce.plugin.manager')
-        self.plugins: Dict[str, Plugin] = {}
+        self.plugins: Dict[str, BasePlugin] = {}
         
     async def load_plugin(self, plugin_class: Type[T]) -> Optional[T]:
         """加载单个插件"""
