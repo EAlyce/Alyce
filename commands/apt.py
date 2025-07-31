@@ -38,16 +38,22 @@ async def apt_cmd(event, args):
         if not param:
             await event.reply("用法: +apt install <插件名>")
             return
-        from .plugin_market import fetch_market, download_plugin
+        from .plugin_market import fetch_market, download_plugin, check_permissions
         import sys, importlib
         market = await fetch_market()
         plugin = next((p for p in market.get('plugins', []) if p['name'].lower() == param.lower()), None)
         if not plugin:
             await event.reply(f"未找到插件：{param}")
             return
-        path = await download_plugin(plugin, target_dir='commands')
-        if not path:
-            await event.reply(f"插件下载失败：{plugin['name']}")
+        # 权限校验（假设 owner 权限最高，实际可扩展用户权限系统）
+        user_permissions = ['owner']
+        if not check_permissions(plugin, user_permissions):
+            await event.reply(f"插件 {plugin['name']} 需要权限：{plugin.get('permissions')}，当前权限不足！")
+            return
+        await event.reply(f"[Alyce] 正在下载并校验插件 {plugin['name']} ...")
+        path, err = await download_plugin(plugin, target_dir='commands')
+        if err:
+            await event.reply(f"插件 {plugin['name']} 安装失败：{err}")
             return
         # 热加载
         modname = f"commands.{path.stem}"
@@ -56,7 +62,7 @@ async def apt_cmd(event, args):
                 importlib.reload(sys.modules[modname])
             else:
                 importlib.import_module(modname)
-            await event.reply(f"插件 {plugin['name']} 安装并热加载成功！")
+            await event.reply(f"插件 {plugin['name']} 安装并热加载成功！\n版本: {plugin.get('version','?')} 作者: {plugin.get('author','?')}\n描述: {plugin.get('desc','')}\n依赖: {plugin.get('dependencies','无')}")
         except Exception as e:
             await event.reply(f"插件已下载，但加载失败：{e}")
     elif subcmd == 'show':
