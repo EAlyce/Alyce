@@ -81,6 +81,8 @@ PHONE=your_phone_number  # with country code, e.g., +1234567890
 
 if __name__ == "__main__":
     import time
+    import os
+    import sys
     while True:
         try:
             exit_code = asyncio.run(main())
@@ -88,10 +90,15 @@ if __name__ == "__main__":
             print(f"[Alyce] 主循环异常: {e}")
             exit_code = 1
         except KeyboardInterrupt:
-            print("[Alyce] 收到 Ctrl+C，3 秒后自动重启...")
-            exit_code = 0
-        if exit_code == 0:
-            print("[Alyce] Alyce 退出，3 秒后自动重启...")
-        else:
-            print("[Alyce] Alyce 异常退出，3 秒后自动重启...")
+            print("[Alyce] 收到 Ctrl+C，Alyce 将转入后台运行。")
+            try:
+                pid = os.fork()
+                if pid > 0:
+                    print(f"[Alyce] Alyce 已转入后台（PID: {pid}），你现在可以回到 shell。")
+                    sys.exit(0)
+                else:
+                    continue
+            except AttributeError:
+                print("[Alyce] 当前环境不支持 fork，无法转后台。请使用 nohup、tmux 或 screen。")
+                sys.exit(0)
         time.sleep(0)
