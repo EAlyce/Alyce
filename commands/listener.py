@@ -45,7 +45,10 @@ class CommandListener:
                 if perm == 'owner' and 'owner' not in user_permissions:
                     await event.reply('无权限，仅 owner 可用。')
                     return
-                sent = await event.reply('处理中...')
+                try:
+                    sent = await event.edit("[Alyce] 正在处理中...")
+                except Exception:
+                    sent = await event.respond("[Alyce] 正在处理中...")
                 try:
                     await entry['handler'](event, args, sent)
                 except TypeError:

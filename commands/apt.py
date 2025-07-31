@@ -36,17 +36,35 @@ async def apt_cmd(event, args, sent=None):
         else:
             await edit("未找到相关插件。")
     elif subcmd == 'install':
+        import sys, importlib, os
+        # 支持对着 .py 文件回复自动安装
+        if not param and getattr(event, 'reply_to_msg_id', None):
+            reply_msg = await event.get_reply_message()
+            if reply_msg and reply_msg.document and reply_msg.document.mime_type == 'text/x-python' and reply_msg.document.name.endswith('.py'):
+                fname = reply_msg.document.name
+                target_path = os.path.join('commands', fname)
+                await edit(f"[Alyce] 正在保存插件文件 {fname} ...")
+                try:
+                    await reply_msg.download_media(file=target_path)
+                    modname = f"commands.{fname[:-3]}"
+                    if modname in sys.modules:
+                        importlib.reload(sys.modules[modname])
+                    else:
+                        importlib.import_module(modname)
+                    await edit(f"插件 {fname} 安装并热加载成功！")
+                except Exception as e:
+                    await edit(f"插件文件保存或加载失败：{e}")
+                return
+        # 兼容原有市场插件名安装
         if not param:
-            await edit("用法: +apt install <插件名>")
+            await edit("用法: +apt install <插件名> 或回复 .py 插件文件")
             return
         from .plugin_market import fetch_market, download_plugin, check_permissions
-        import sys, importlib
         market = await fetch_market()
         plugin = next((p for p in market.get('plugins', []) if p['name'].lower() == param.lower()), None)
         if not plugin:
             await edit(f"未找到插件：{param}")
             return
-        # 权限校验（假设 owner 权限最高，实际可扩展用户权限系统）
         user_permissions = ['owner']
         if not check_permissions(plugin, user_permissions):
             await edit(f"插件 {plugin['name']} 需要权限：{plugin.get('permissions')}，当前权限不足！")
@@ -56,7 +74,6 @@ async def apt_cmd(event, args, sent=None):
         if err:
             await edit(f"插件 {plugin['name']} 安装失败：{err}")
             return
-        # 热加载
         modname = f"commands.{path.stem}"
         try:
             if modname in sys.modules:
