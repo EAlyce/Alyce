@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 
-class Plugin(ABC):
+class BasePlugin(ABC):
     """插件基类, 所有插件必须继承此类"""
     
     # 插件元数据

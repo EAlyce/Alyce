@@ -7,9 +7,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Type, TypeVar
 
-from alyce.core.plugin.base import Plugin
+from alyce.core.plugin.base import BasePlugin
 
-T = TypeVar('T', bound='Plugin')
+T = TypeVar('T', bound='BasePlugin')
 
 class PluginManager:
     """管理插件的加载、初始化和卸载"""
@@ -21,7 +21,7 @@ class PluginManager:
         
     async def load_plugin(self, plugin_class: Type[T]) -> Optional[T]:
         """加载单个插件"""
-        if not issubclass(plugin_class, Plugin):
+        if not issubclass(plugin_class, BasePlugin):
             self.logger.error(f"Invalid plugin class: {plugin_class.__name__}")
             return None
         plugin_name = plugin_class.name
