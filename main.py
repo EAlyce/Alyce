@@ -2,6 +2,7 @@
 
 import asyncio
 import sys
+import os
 from core.client.telegram import TelegramClient
 from utils.config import config
 from utils.logging import setup_logger
