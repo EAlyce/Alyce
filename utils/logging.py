@@ -3,6 +3,8 @@ import sys
 import os
 from pathlib import Path
 from typing import Optional
+from logging.handlers import TimedRotatingFileHandler
+import datetime
 
 def setup_logger(
     name: str = 'alyce',
@@ -23,8 +25,17 @@ def setup_logger(
     if log_file:
         log_dir = Path('logs')
         log_dir.mkdir(parents=True, exist_ok=True)
-        log_path = log_dir / log_file
-        file_handler = logging.FileHandler(log_path, encoding='utf-8')
+        # 日志文件名格式 logs/alyce-YYYY-MM-DD.log
+        log_path = log_dir / f"{Path(log_file).stem}-{datetime.date.today().isoformat()}.log"
+        file_handler = TimedRotatingFileHandler(
+            log_path,
+            when='midnight',
+            interval=1,
+            backupCount=7,
+            encoding='utf-8',
+            utc=False
+        )
+        file_handler.suffix = "%Y-%m-%d.log"
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     return logger

@@ -7,7 +7,10 @@ from utils.config import config
 from utils.logging import setup_logger
 
 # Setup logger
-logger = setup_logger(level='DEBUG' if config.get_bool('DEBUG') else 'INFO')
+logger = setup_logger(
+    level='DEBUG' if config.get_bool('DEBUG') else 'INFO',
+    log_file='alyce.log'
+)
 
 async def main():
     """Main entry function"""
