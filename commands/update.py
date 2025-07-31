@@ -52,6 +52,30 @@ async def update_cmd(event, args, sent=None):
         if proc.returncode != 0:
             await safe_edit(f"[Alyce] 更新失败，详细日志见 logs/alyce-YYYY-MM-DD.log")
             return
+        # 自动递增 PATCH 版本号
+        import re
+        version_path = os.path.join(os.path.dirname(__file__), '..', 'alyce', '__init__.py')
+        version_path = os.path.abspath(version_path)
+        with open(version_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        m = re.search(r'__version__\s*=\s*"(\d+)\.(\d+)\.(\d+)"', content)
+        if m:
+            major, minor, patch = map(int, m.groups())
+            patch += 1
+            if patch > 99:
+                patch = 0
+                minor += 1
+            if minor > 99:
+                minor = 0
+                major += 1
+            if major > 99:
+                major = 99
+                minor = 99
+                patch = 99
+            new_version = f'{major}.{minor}.{patch}'
+            content = re.sub(r'(__version__\s*=\s*")[^"]+(".*)', f'\\1{new_version}\\2', content)
+            with open(version_path, 'w', encoding='utf-8') as f:
+                f.write(content)
         steps[3] = "✅ **代码更新完成**"
         msg = progress(steps)
         await safe_edit(msg)
