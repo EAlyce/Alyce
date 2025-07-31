@@ -7,11 +7,20 @@ async def update_cmd(event, args, sent=None):
     msg = "[Alyce] 正在检查并拉取最新更新..."
     if sent is None:
         sent = await event.reply(msg)
-    def safe_edit(text):
+    async def safe_edit(text):
         MAX_LEN = 4096
         if len(text) > MAX_LEN:
             text = text[:MAX_LEN-30] + "\n...\n[消息过长已截断]"
-        return sent.edit(text)
+        try:
+            if hasattr(sent, 'text') and (sent.text or '').strip() == text.strip():
+                return  # 内容未变，跳过 edit
+            await sent.edit(text)
+        except Exception as e:
+            if 'MessageNotModifiedError' in str(type(e)) or 'Content of the message was not modified' in str(e):
+                pass  # 忽略内容未变异常
+            else:
+                import logging
+                logging.exception(f"edit 消息异常: {e}")
     try:
         # 1. git pull
         proc = await asyncio.create_subprocess_exec(
