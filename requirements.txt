@@ -2,7 +2,7 @@
 # 生产环境依赖 (必须)
 ###########################################
 python-dotenv>=1.1.1
-telethon>=2.0.0
+telethon>=1.34.0
 pyrogram>=2.2.0
 colorlog>=7.0.0
 python-dateutil>=2.9.0
