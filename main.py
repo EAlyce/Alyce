@@ -1,4 +1,4 @@
-"""Alyce - Telegram 客户端启动入口"""
+"""Alyce - Telegram client entry point"""
 
 import asyncio
 import sys
@@ -6,44 +6,44 @@ from core.client.telegram import TelegramClient
 from utils.config import config
 from utils.logging import setup_logger
 
-# 配置日志
+# Setup logger
 logger = setup_logger(level='DEBUG' if config.get_bool('DEBUG') else 'INFO')
 
 async def main():
-    """主入口函数"""
-    # 校验配置
+    """Main entry function"""
+    # Validate config
     if not config.validate():
-        logger.error("缺少必要配置，请检查 .env 文件。")
-        print("\n请创建 .env 文件，内容如下：")
+        logger.error("Missing required configuration. Please check your .env file.")
+        print("\nPlease create a .env file with the following content:")
         print("""
 # Telegram API credentials
 API_ID=your_api_id
 API_HASH=your_api_hash
-PHONE=your_phone_number  # 带国家码, 如 +8613800138000
-# 可选项
+PHONE=your_phone_number  # with country code, e.g., +1234567890
+# Optional
 # SESSION_PATH=session
 # DEBUG=True
 """)
         return 1
 
-    # 创建并启动客户端
+    # Create and start client
     client = TelegramClient()
     try:
-        # 连接 Telegram
+        # Connect to Telegram
         if not await client.connect():
             return 1
 
-        print("\n已连接 Telegram！按 Ctrl+C 退出。")
-        print(f"当前账号：{client.me.first_name} (@{client.me.username or '无用户名'})")
+        print("\nConnected to Telegram! Press Ctrl+C to exit.")
+        print(f"Logged in as: {client.me.first_name} (@{client.me.username or 'N/A'})")
 
         while await client.is_connected():
             await asyncio.sleep(1)
 
     except KeyboardInterrupt:
-        print("\n正在断开连接...")
+        print("\nDisconnecting...")
 
     except Exception as e:
-        logger.error(f"运行时异常: {e}", exc_info=True)
+        logger.error(f"An error occurred: {e}", exc_info=True)
         return 1
 
     finally:

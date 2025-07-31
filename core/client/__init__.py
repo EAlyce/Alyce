@@ -1,5 +1,5 @@
 """
-Alyce 客户端模块，包含多协议的 Telegram 客户端实现。
+Alyce client module, includes multi-protocol Telegram client implementations.
 """
 
 from .base import BaseClient
