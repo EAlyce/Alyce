@@ -76,13 +76,12 @@ async def update_cmd(event, args, sent=None):
         # 4. 自动重启 Alyce 进程（代码/依赖变更）
         steps[6] = "♻️ 所有更新已应用，Alyce 正在自动重启中..."
         msg = progress(steps)
-        await safe_edit(msg)
+        try:
+            await safe_edit(msg)
+        except Exception:
+            pass  # 保证即使 edit 失败也不会卡住流程
         import sys
-        await asyncio.sleep(1)
-        # os.execv 会替换进程，无法直接 edit，需在启动时检测是否为 update 后重启
-        # 可以通过写入一个 .reboot 标记文件，启动后检测并 edit
-        with open('.reboot', 'w', encoding='utf-8') as f:
-            f.write(str(event.id) if hasattr(event, 'id') else '')
+        await asyncio.sleep(2)  # 给 TG 端 edit 留足时间
         os.execv(sys.executable, [sys.executable] + sys.argv)
     except Exception as e:
         await safe_edit(msg + f"\n\n[Alyce] 更新出错：{e}")
