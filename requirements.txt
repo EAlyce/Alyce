@@ -1,12 +1,13 @@
 ###########################################
 # 生产环境依赖 (必须)
 ###########################################
-python-dotenv>=0.19.0
-telethon>=1.24.0
-pyrogram>=2.0.0
-colorlog>=6.6.0
-python-dateutil>=2.8.2
-requests>=2.27.1
+python-dotenv>=2.0.0
+telethon>=2.0.0
+pyrogram>=2.2.0
+colorlog>=7.0.0
+python-dateutil>=2.9.0
+aiohttp>=3.9.5
+requests>=3.0.0
 
 ###########################################
 # 开发环境依赖 (可选)

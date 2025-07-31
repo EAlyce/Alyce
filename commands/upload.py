@@ -7,11 +7,12 @@ import os
 UPLOAD_API = 'https://alyce.example.com/api/upload_plugin'  # 替换为实际API
 
 @command('upload', description='上传插件到 Alyce 插件市场（如 +upload foo.py）')
-async def upload_cmd(event, args):
+async def upload_cmd(event, args, sent=None):
     # 检查是否为 owner
     sender = await event.get_sender()
+    edit = sent.edit if sent else event.reply
     if getattr(sender, 'id', None) not in [123456789]:  # 替换为 owner ID
-        await event.reply('仅 owner 可上传插件。')
+        await edit('仅 owner 可上传插件。')
         return
     # 支持直接文件名或回复文件
     file_path = args.strip()
@@ -21,9 +22,9 @@ async def upload_cmd(event, args):
             file_path = reply.file.name or 'plugin.py'
             await reply.download_media(file_path)
     if not file_path or not os.path.isfile(file_path):
-        await event.reply('请指定本地插件文件名或回复插件文件。')
+        await edit('请指定本地插件文件名或回复插件文件。')
         return
-    await event.reply(f'正在上传插件 {file_path} ...')
+    await edit(f'正在上传插件 {file_path} ...')
     try:
         async with aiohttp.ClientSession() as session:
             with open(file_path, 'rb') as f:
@@ -33,8 +34,8 @@ async def upload_cmd(event, args):
                 async with session.post(UPLOAD_API, data=data, timeout=30) as resp:
                     if resp.status == 200:
                         result = await resp.json()
-                        await event.reply(f"插件上传成功！\n市场审核结果：{result.get('msg', '待审核')}")
+                        await edit(f"插件上传成功！\n市场审核结果：{result.get('msg', '待审核')}")
                     else:
-                        await event.reply(f"上传失败，HTTP状态码：{resp.status}")
+                        await edit(f"上传失败，HTTP状态码：{resp.status}")
     except Exception as e:
-        await event.reply(f"插件上传出错：{e}")
+        await edit(f"插件上传出错：{e}")

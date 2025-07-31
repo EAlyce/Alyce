@@ -45,7 +45,12 @@ class CommandListener:
                 if perm == 'owner' and 'owner' not in user_permissions:
                     await event.reply('无权限，仅 owner 可用。')
                     return
-                await entry['handler'](event, args)
+                sent = await event.reply('处理中...')
+                try:
+                    await entry['handler'](event, args, sent)
+                except TypeError:
+                    # 兼容旧插件只接受(event, args)
+                    await entry['handler'](event, args)
 
 # Usage (in TelegramClient):
 # from commands.listener import CommandListener
