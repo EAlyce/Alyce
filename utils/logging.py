@@ -1,1 +1,30 @@
-﻿"""鏃ュ織閰嶇疆"""import loggingimport sysfrom pathlib import Pathfrom typing import Optionalimport osimport threadingimport requestsdef setup_logger(    name: str = 'alyce',    level: int = logging.INFO,    log_file: Optional[str] = None,    console: bool = True) -> logging.Logger:    """閰嶇疆骞惰繑鍥炰竴涓棩蹇楄褰曞櫒        Args:        name: 鏃ュ織璁板綍鍣ㄥ悕绉?        level: 鏃ュ織绾у埆        log_file: 鏃ュ織鏂囦欢璺緞锛屽鏋滀负 None 鍒欎笉鍐欏叆鏂囦欢        console: 鏄惁鍦ㄦ帶鍒跺彴杈撳嚭            Returns:        logging.Logger: 閰嶇疆濂界殑鏃ュ織璁板綍鍣?    """    logger = logging.getLogger(name)    logger.setLevel(level)        # 閬垮厤閲嶅娣诲姞澶勭悊鍣?    if logger.handlers:        return logger        formatter = logging.Formatter(        LOG_FORMAT,        datefmt=DATE_FORMAT    )        # 鎺у埗鍙板鐞嗗櫒    if console:        console_handler = logging.StreamHandler(sys.stdout)        console_handler.setFormatter(formatter)        logger.addHandler(console_handler)        # 鏂囦欢澶勭悊鍣?    if log_file:        log_path = os.path.join(LOG_DIR, log_file)        log_path.parent.mkdir(parents=True, exist_ok=True)        file_handler = logging.FileHandler(log_path, encoding='utf-8')        file_handler.setFormatter(formatter)        logger.addHandler(file_handler)        return logger
+import logging
+import sys
+import os
+from pathlib import Path
+from typing import Optional
+
+def setup_logger(
+    name: str = 'alyce',
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    console: bool = True
+) -> logging.Logger:
+    """Set up and return a logger with optional file and console handlers."""
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    if logger.handlers:
+        return logger
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    if console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+    if log_file:
+        log_dir = Path('logs')
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / log_file
+        file_handler = logging.FileHandler(log_path, encoding='utf-8')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    return logger
