@@ -5,6 +5,9 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
+import os
+import threading
+import requests
 
 def setup_logger(
     name: str = 'alyce',
@@ -31,8 +34,8 @@ def setup_logger(
         return logger
     
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        LOG_FORMAT,
+        datefmt=DATE_FORMAT
     )
     
     # 控制台处理器
@@ -43,7 +46,7 @@ def setup_logger(
     
     # 文件处理器
     if log_file:
-        log_path = Path(log_file)
+        log_path = os.path.join(LOG_DIR, log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_path, encoding='utf-8')
         file_handler.setFormatter(formatter)

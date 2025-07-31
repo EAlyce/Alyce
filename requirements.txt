@@ -6,6 +6,7 @@ telethon>=1.24.0
 pyrogram>=2.0.0
 colorlog>=6.6.0
 python-dateutil>=2.8.2
+requests>=2.27.1
 
 ###########################################
 # 开发环境依赖 (可选)

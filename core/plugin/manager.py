@@ -16,7 +16,7 @@ class PluginManager:
     
     def __init__(self, client):
         self.client = client
-        self.logger = logging.getLogger('alyce.plugin.manager')
+        self.logger = get_logger('alyce.plugin.manager')
         self.plugins: Dict[str, Plugin] = {}
         
     async def load_plugin(self, plugin_class: Type[T]) -> Optional[T]:
@@ -24,47 +24,69 @@ class PluginManager:
         if not issubclass(plugin_class, Plugin):
             self.logger.error(f"Invalid plugin class: {plugin_class.__name__}")
             return None
-            
         plugin_name = plugin_class.name
         if plugin_name in self.plugins:
             self.logger.warning(f"Plugin {plugin_name} is already loaded")
             return None
-            
         try:
             plugin = plugin_class(self.client)
-            await plugin.initialize()
+            try:
+                await plugin.initialize()
+            except Exception as e:
+                self.logger.error(f"Plugin {plugin_name} on_load/init error: {e}")
+                if hasattr(plugin, 'on_error'):
+                    await plugin.on_error(e)
+                return None
             self.plugins[plugin_name] = plugin
             self.logger.info(f"Loaded plugin: {plugin_name}")
+            if hasattr(plugin, 'on_load'):
+                await plugin.on_load()
             return plugin
         except Exception as e:
-            self.logger.error(f"Failed to load plugin {plugin_name}: {e}", exc_info=True)
+            self.logger.error(f"Failed to load plugin {plugin_class.__name__}: {e}", exc_info=True)
             return None
     
     async def unload_plugin(self, plugin_name: str) -> bool:
         """卸载指定插件"""
-        plugin = self.plugins.pop(plugin_name, None)
+        plugin = self.plugins.get(plugin_name)
         if not plugin:
-            self.logger.warning(f"Plugin {plugin_name} is not loaded")
+            self.logger.warning(f"Plugin {plugin_name} not found")
             return False
-            
         try:
-            await plugin.cleanup()
+            try:
+                await plugin.cleanup()
+            except Exception as e:
+                self.logger.error(f"Plugin {plugin_name} on_unload/cleanup error: {e}")
+                if hasattr(plugin, 'on_error'):
+                    await plugin.on_error(e)
+            if hasattr(plugin, 'on_unload'):
+                await plugin.on_unload()
+            del self.plugins[plugin_name]
             self.logger.info(f"Unloaded plugin: {plugin_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error unloading plugin {plugin_name}: {e}", exc_info=True)
+            self.logger.error(f"Failed to unload plugin {plugin_name}: {e}", exc_info=True)
             return False
     
     async def load_plugins_from_path(self, path: str):
-        """从指定路径加载所有插件"""
+        """从指定路径加载所有插件（支持 Alyce 和 PagerMaid 风格）"""
         plugins_dir = Path(path)
         if not plugins_dir.exists() or not plugins_dir.is_dir():
             self.logger.warning(f"Plugins directory not found: {path}")
             return
-            
-        # 实现插件自动发现和加载
-        # 注意：实际实现中需要更完善的插件发现机制
-        pass
+
+        import importlib.util
+        for file in plugins_dir.glob("*.py"):
+            if file.name.startswith("_") or file.name in ("decorators.py", "api.py", "loader.py"):
+                continue
+            spec = importlib.util.spec_from_file_location(file.stem, str(file))
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                self.logger.info(f"Loaded plugin module: {file.name}")
+        # 兼容 Alyce 原生插件加载机制（类式插件）
+        # TODO: 可根据实际需求进一步完善
+
     
     async def initialize(self):
         """初始化所有已加载的插件"""

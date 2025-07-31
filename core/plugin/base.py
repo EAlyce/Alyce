@@ -35,6 +35,7 @@ class Plugin(ABC):
     
     async def initialize(self):
         """初始化插件"""
+        await self.on_load()
         self.logger.info(f"Initializing plugin: {self.name}")
     
     async def cleanup(self):
