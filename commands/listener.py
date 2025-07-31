@@ -24,7 +24,7 @@ class CommandListener:
         return None, None, None
 
     def setup(self, client):
-        @client.client.on(NewMessage(incoming=True))
+        @client.client.on(NewMessage(outgoing=True))
         async def handle_command(event):
             text = event.raw_text.strip()
             prefix, cmd, args = self.parse_command(text)
