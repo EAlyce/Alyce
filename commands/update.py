@@ -82,6 +82,14 @@ async def update_cmd(event, args, sent=None):
             pass  # 保证即使 edit 失败也不会卡住流程
         import sys
         await asyncio.sleep(2)  # 给 TG 端 edit 留足时间
+        # 自动重启前，主动断开全局 client，避免 database is locked
+        try:
+            if 'global_client' in globals() and hasattr(globals()['global_client'], 'disconnect'):
+                disconnect_coro = globals()['global_client'].disconnect()
+                if hasattr(disconnect_coro, '__await__'):
+                    await disconnect_coro
+        except Exception:
+            pass
         os.execv(sys.executable, [sys.executable] + sys.argv)
     except Exception as e:
         await safe_edit(msg + f"\n\n[Alyce] 更新出错：{e}")
