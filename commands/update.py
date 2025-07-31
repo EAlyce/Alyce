@@ -14,6 +14,7 @@ async def update_cmd(event, args, sent=None):
         "",  # 代码更新
         "",  # 插件热加载
         "",  # 自动重启
+        ""   # 兼容 steps[6] 自动重启赋值
     ]
     msg = progress(steps)
 
