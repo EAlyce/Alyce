@@ -3,11 +3,11 @@
 ###########################################
 python-dotenv>=1.1.1
 telethon>=1.34.0
-pyrogram>=2.2.0
+pyrogram>=2.0.106
 colorlog>=7.0.0
 python-dateutil>=2.9.0
 aiohttp>=3.9.5
-requests>=3.0.0
+requests>=2.32.3
 
 ###########################################
 # 开发环境依赖 (可选)
