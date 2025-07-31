@@ -20,6 +20,15 @@ async def update_cmd(event, args, sent=None):
 
     if sent is None:
         sent = await event.reply(msg)
+    # 记录当前 update 消息的 chat_id 和 message_id 以便重启后 edit
+    try:
+        chat_id = event.chat_id if hasattr(event, 'chat_id') else (event.chat.id if hasattr(event, 'chat') else None)
+        msg_id = sent.id if hasattr(sent, 'id') else (sent.message_id if hasattr(sent, 'message_id') else None)
+        if chat_id and msg_id:
+            with open('.reboot', 'w', encoding='utf-8') as f:
+                f.write(f'{chat_id},{msg_id}')
+    except Exception:
+        pass
     async def safe_edit(text):
         MAX_LEN = 4096
         if len(text) > MAX_LEN:

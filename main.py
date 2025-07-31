@@ -41,19 +41,25 @@ PHONE=your_phone_number  # with country code, e.g., +1234567890
         print("Connected to Telegram! Press Ctrl+C to exit.")
         print(f"Logged in as: {global_client.me.first_name} (@{global_client.me.username or 'N/A'})")
 
-        # 自动重启上线提示
+        # 自动重启后 edit 上次 update 消息为“重启完成”
         import os
-        if os.path.isfile('.just_updated'):
+        if os.path.isfile('.reboot'):
             try:
-                os.remove('.just_updated')
-                # 遍历所有群/频道，发上线提示
-                async for dialog in global_client.client.iter_dialogs():
-                    # 只发到群和超级群，不发私聊
-                    if getattr(dialog, 'is_group', False) or getattr(dialog, 'is_channel', False):
+                with open('.reboot', 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                os.remove('.reboot')
+                if ',' in content:
+                    chat_id, msg_id = content.split(',', 1)
+                    chat_id = int(chat_id)
+                    msg_id = int(msg_id)
+                    try:
+                        await global_client.client.edit_message(chat_id, msg_id, '✅ Alyce 已重启完成！')
+                    except Exception:
+                        # edit 失败则发新消息
                         try:
-                            await global_client.client.send_message(dialog.id, '✅ Alyce 已重启上线，欢迎继续使用！')
+                            await global_client.client.send_message(chat_id, '✅ Alyce 已重启完成！')
                         except Exception:
-                            continue
+                            pass
             except Exception:
                 pass
 
