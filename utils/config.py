@@ -55,7 +55,9 @@ class Config:
             return default
 
     def get_session_path(self) -> Path:
-        session_dir = Path(self.get('SESSION_PATH'))
+        # Store session in user home directory for persistence
+        home = Path.home()
+        session_dir = home / '.alyce' / 'session'
         session_dir.mkdir(parents=True, exist_ok=True)
         return session_dir / 'alyce.session'
 

@@ -29,11 +29,12 @@ class TelegramClient(BaseClient):
         self.logger.info(f"Logged in as {self._me.first_name} (@{getattr(self._me, 'username', None) or 'N/A'})")
         # Alyce +command system integration
         try:
-            from commands.base import setup_command_handlers
-            setup_command_handlers(self)
-            self.logger.info("Alyce +command system loaded. Type +help in Telegram chat to see commands.")
+            from commands.listener import CommandListener
+            listener = CommandListener(prefix='+')
+            listener.setup(self)
+            self.logger.info("Alyce 指令监听系统已加载，直接输入 +help 或 +apt 等命令。");
         except Exception as e:
-            self.logger.error(f"Failed to load +command system: {e}")
+            self.logger.error(f"Failed to load command listener system: {e}")
         return True
 
     async def _login(self, phone: str):
