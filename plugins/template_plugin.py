@@ -1,1 +1,16 @@
-﻿"""Alyce 鎻掍欢寮€鍙戞ā鏉?鏀寔鍛戒护娉ㄥ唽銆佺敓鍛藉懆鏈熼挬瀛愩€佽嚜鍔ㄥ府鍔?"""from core.plugin.base import BasePluginfrom plugins.decorators import on_commandclass MyPlugin(BasePlugin):    """    绀轰緥鎻掍欢锛屽睍绀哄懡浠ゆ敞鍐屻€佺敓鍛藉懆鏈熼挬瀛愮敤娉?    """    @on_command("hello")    async def hello(self, message, client, args):        await client.send_message(message.chat.id, "Hello from Alyce plugin!")    async def on_load(self):        print("[MyPlugin] 鎻掍欢宸插姞杞?)    async def on_unload(self):        print("[MyPlugin] 鎻掍欢宸插嵏杞?)    async def on_error(self, exc):        print(f"[MyPlugin] 鎻掍欢寮傚父: {exc}")
+from core.plugin.base import BasePlugin
+from plugins.decorators import on_command
+
+class MyPlugin(BasePlugin):
+    @on_command("hello")
+    async def hello(self, message, client, args):
+        await client.send_message(message.chat.id, "Hello from Alyce plugin!")
+
+    async def on_load(self):
+        print("[MyPlugin] Plugin loaded")
+
+    async def on_unload(self):
+        print("[MyPlugin] Plugin unloaded")
+
+    async def on_error(self, exc):
+        print(f"[MyPlugin] Plugin error: {exc}")

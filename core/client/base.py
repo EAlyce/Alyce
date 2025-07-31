@@ -1,46 +1,41 @@
 """Alyce Client Base Class
 
-This module provides a unified base class for all Telegram client implementations,
-defining core interfaces for connecting, disconnecting, and plugin management.
-"""
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type
-
-from telethon import TelegramClient
-
-from core.plugin.manager import PluginManager
-
+from typing import Any, Dict, Optional
 
 class BaseClient(ABC):
-    """Alyce Client Base Class"""
-
+    """Alyce Base Client"""
     def __init__(self, **kwargs):
-        """
-        Initializes the Alyce Client.
-
+        """BaseClient init
         Args:
-            **kwargs: Client configuration parameters.
+            **kwargs: config dict
         """
         self.config = kwargs
-        self.client: Optional[TelegramClient] = None
-        self.plugin_manager = PluginManager(self)
+        self.client = None
 
     @abstractmethod
     async def connect(self) -> bool:
-        """Connect to the Telegram server."""
+        """Connect to service"""
         pass
 
     @abstractmethod
     async def disconnect(self):
-        """Disconnect from the Telegram server."""
+        """Disconnect from service"""
         pass
 
     @abstractmethod
     async def is_connected(self) -> bool:
-        """Check if the client is connected."""
+        """Check connection status"""
         pass
+
+    @property
+    @abstractmethod
+    def me(self) -> Optional[Dict[str, Any]]:
+        """Current user info"""
+        pass
+
 
     async def run(self):
         """Run the client's main loop."""
