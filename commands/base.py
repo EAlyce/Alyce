@@ -61,6 +61,8 @@ def get_all_commands():
     seen = set()
     cmds = []
     for meta in {v['meta'] for v in registry.all_commands().values()}:
+        if meta is None:
+            continue
         if meta.name not in seen:
             cmds.append(meta)
             seen.add(meta.name)
