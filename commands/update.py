@@ -7,13 +7,11 @@ async def update_cmd(event, args, sent=None):
     # 步骤进度模板
     def progress(steps):
         return '\n'.join(steps)
-    from alyce import __version__
     steps = [
-        f"✨ **[Alyce] 正在更新中...**  <code>v{__version__}</code>",
+        "✨ **[Alyce] 正在更新中...**",
         "请稍候，系统即将自动升级并重启。",
         "",
         "",  # 代码更新
-        "",  # 依赖升级
         "",  # 插件热加载
         "",  # 自动重启
     ]
@@ -54,38 +52,8 @@ async def update_cmd(event, args, sent=None):
             return
         # 每次 update 必定递增 PATCH 版本号
         # 已移除自动递增 Alyce 版本号逻辑。
-        steps[3] = "✅ **代码更新完成**"
-        msg = progress(steps)
-        await safe_edit(msg)
-        # 2. pip install -r requirements.txt
-        import sys
-        pip_cmds = [
-            ['pip3', 'install', '-r', 'requirements.txt'],
-            [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']
-        ]
-        pip_log = []
-        for pip_cmd in pip_cmds:
-            try:
-                proc2 = await asyncio.create_subprocess_exec(
-                    *pip_cmd,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-                stdout2, stderr2 = await proc2.communicate()
-                pip_msg = stdout2.decode().strip() or stderr2.decode().strip()
-                # 写入日志
-                for line in (stdout2.decode().splitlines() + stderr2.decode().splitlines()):
-                    logger.info(f"[pip] {line}")
-                if proc2.returncode == 0:
-                    break
-            except FileNotFoundError:
-                pip_msg = f"未找到 pip 命令：{' '.join(pip_cmd)}"
-                logger.error(pip_msg)
-                continue
-        else:
-            await safe_edit(msg + f"\n\n[Alyce] 依赖升级失败，详细日志见 logs/alyce-YYYY-MM-DD.log")
-            return
-        steps[4] = "🔄 **依赖升级完成**"
+        git_output = git_stdout.decode().strip() or git_stderr.decode().strip()
+        steps[3] = f"✅ **代码更新完成**\n<pre>{git_output if git_output else '无输出'}</pre>"
         msg = progress(steps)
         await safe_edit(msg)
         # 3. 热加载插件（仅变更 commands/ 目录时无需重启）
