@@ -1,5 +1,7 @@
-""
+"""
 Alyce 客户端基类
+
+本模块为所有 Telegram 客户端实现提供统一基类，定义了连接、断开、插件管理等核心接口。
 """
 import asyncio
 from abc import ABC, abstractmethod
