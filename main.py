@@ -102,13 +102,13 @@ if __name__ == "__main__":
     if is_sqlite_locked():
         sys.exit(1)
 
-    while True:
-        try:
-            exit_code = asyncio.run(main())
-        except Exception as e:
-            print(f"[Alyce] 主循环异常: {e}")
-            exit_code = 1
-        except KeyboardInterrupt:
-            print("[Alyce] 收到 Ctrl+C，优雅退出。"); break
-        time.sleep(1)
+    import asyncio
+    try:
+        exit_code = asyncio.run(main())
+    except Exception as e:
+        print(f"[Alyce] 主循环异常: {e}")
+        exit_code = 1
+    except KeyboardInterrupt:
+        print("[Alyce] 收到 Ctrl+C，优雅退出。")
+        exit_code = 0
     sys.exit(exit_code)
