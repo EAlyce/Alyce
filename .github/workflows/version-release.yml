@@ -1,0 +1,71 @@
+name: Alyce Version & Release Automation
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  version-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Bump PATCH version (max 99.10.10)
+        id: bump_version
+        run: |
+          import re
+          import sys
+          
+          path = 'alyce/__init__.py'
+          with open(path, 'r', encoding='utf-8') as f:
+              content = f.read()
+          m = re.search(r'__version__\s*=\s*"(\d+)\.(\d+)\.(\d+)"', content)
+          if not m:
+              print('::error::No __version__ found!')
+              sys.exit(1)
+          major, minor, patch = map(int, m.groups())
+          patch += 1
+          if patch > 10:
+              patch = 0
+              minor += 1
+          if minor > 10:
+              minor = 0
+              major += 1
+          if major > 99:
+              major = 99
+              minor = 10
+              patch = 10
+          new_version = f'{major}.{minor}.{patch}'
+          if new_version == f'{major}.{minor}.{patch}' and (patch == 0 or minor == 0):
+              print(f'::set-output name=version::{new_version}')
+          content = re.sub(r'(__version__\s*=\s*")[^"]+(".*)', f'\\1{new_version}\\2', content)
+          with open(path, 'w', encoding='utf-8') as f:
+              f.write(content)
+          print(f'Bumped version to {new_version}')
+          print(f'::set-output name=version::{new_version}')
+
+      - name: Commit & Push version bump
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add alyce/__init__.py
+          git commit -m "ci: bump version [skip ci]" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+      - name: Create Release if version advanced
+        if: steps.bump_version.outputs.version != '' && (endsWith(steps.bump_version.outputs.version, '.0') || endsWith(steps.bump_version.outputs.version, '.0.0'))
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.bump_version.outputs.version }}
+          name: Alyce v${{ steps.bump_version.outputs.version }}
+          body: |
+            自动发布 Alyce 版本 ${{ steps.bump_version.outputs.version }}
+            - 见 commit log
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -50,7 +50,7 @@ async def update_cmd(event, args, sent=None):
         for line in (git_stdout.decode().splitlines() + git_stderr.decode().splitlines()):
             logger.info(f"[git] {line}")
         if proc.returncode != 0:
-            await safe_edit(f"[Alyce] 更新失败，详细日志见 logs/alyce-YYYY-MM-DD.log")
+            await safe_edit(f"[Alyce] 更新失败")
             return
         # 自动递增 PATCH 版本号
         import re
