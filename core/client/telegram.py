@@ -1,1 +1,51 @@
-﻿"""Telegram 瀹㈡埛绔疄鐜?(鍩轰簬 Telethon)"""import asyncioimport loggingfrom typing import Optional, Dict, Anyfrom telethon import TelegramClientfrom telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidErrorfrom telethon.tl.types import Userfrom ..base import BaseClientfrom utils.config import configclass TelegramClient(BaseClient):    """Telegram 瀹㈡埛绔疄鐜?""        def __init__(self, **kwargs):        super().__init__(**kwargs)        self.logger = logging.getLogger('alyce.client.telegram')        self._me: Optional[User] = None            async def connect(self) -> bool:        """杩炴帴鍒?Telegram 鏈嶅姟鍣?""        try:            api_id = config.get_int('API_ID')            api_hash = config.get('API_HASH')            phone = config.get('PHONE')            if not all([api_id, api_hash, phone]):                print("[閿欒] 缂哄皯蹇呰閰嶇疆椤癸細API_ID銆丄PI_HASH銆丳HONE銆傝鍦ㄩ厤缃枃浠朵腑琛ュ叏鍚庨噸璇曪紒")                self.logger.error("缂哄皯蹇呰閰嶇疆 (API_ID, API_HASH, PHONE)")                return False            print("[淇℃伅] 姝ｅ湪鍒濆鍖?Telegram 瀹㈡埛绔?..")            self.client = TelegramClient(                str(config.get_session_path()),                api_id=api_id,                api_hash=api_hash,                device_model="Alyce Client",                app_version="1.0.0",                system_version="Alyce/1.0.0"            )            print("[淇℃伅] 姝ｅ湪杩炴帴鍒?Telegram 鏈嶅姟鍣?..")            await self.client.connect()            # 妫€鏌ユ槸鍚﹀凡鐧诲綍            if not await self.client.is_user_authorized():                print("[鎻愮ず] 褰撳墠鏈櫥褰曪紝灏嗚繘鍏ョ櫥褰曟祦绋?..")                await self._login(phone)            # 鑾峰彇褰撳墠鐢ㄦ埛淇℃伅            self._me = await self.client.get_me()            print(f"[鎴愬姛] 鐧诲綍鎴愬姛锛屽綋鍓嶈处鍙凤細{self._me.first_name} (@{self._me.username or '鏃犵敤鎴峰悕'})")            self.logger.info(f"Logged in as {self._me.first_name} (@{self._me.username or 'N/A'})")            return True        except Exception as e:            print(f"[閿欒] 杩炴帴 Telegram 澶辫触锛歿e}")            self.logger.error(f"Failed to connect to Telegram: {e}", exc_info=True)            return False        async def _login(self, phone: str):        """鐧诲綍娴佺▼"""        if not self.client:            raise RuntimeError("Client not initialized")        print(f"[鐧诲綍] 宸插悜 {phone} 鍙戦€侀獙璇佺爜...\n")        await self.client.send_code_request(phone)        # 璇锋眰鐢ㄦ埛杈撳叆楠岃瘉鐮?        while True:            try:                code = input("璇疯緭鍏ユ敹鍒扮殑楠岃瘉鐮侊紙鏁板瓧锛夛細").strip()                if not code:                    print("[鎻愮ず] 楠岃瘉鐮佷笉鑳戒负绌猴紝璇烽噸鏂拌緭鍏ャ€?)                    continue                # 灏濊瘯鐧诲綍                await self.client.sign_in(phone, code)                print("[鎴愬姛] 楠岃瘉鐮侀獙璇侀€氳繃锛屽凡鐧诲綍锛?)                break            except PhoneCodeInvalidError:                print("[閿欒] 楠岃瘉鐮佹棤鏁堬紝璇烽噸鏂拌緭鍏ャ€?)            except SessionPasswordNeededError:                # 闇€瑕佷袱姝ラ獙璇佸瘑鐮?                password = input("妫€娴嬪埌璐﹀彿寮€鍚簡涓ゆ楠岃瘉锛岃杈撳叆 2FA 瀵嗙爜锛?).strip()                if password:                    await self.client.sign_in(password=password)                    print("[鎴愬姛] 2FA 楠岃瘉閫氳繃锛屽凡鐧诲綍锛?)                    break                else:                    print("[鎻愮ず] 2FA 瀵嗙爜涓嶈兘涓虹┖锛岃閲嶆柊杈撳叆銆?)        async def disconnect(self):        """鏂紑杩炴帴"""        if self.client and self.client.is_connected():            await self.client.disconnect()            self.logger.info("Disconnected from Telegram")        async def is_connected(self) -> bool:        """妫€鏌ヨ繛鎺ョ姸鎬?""        return bool(self.client and self.client.is_connected())        @property    def me(self) -> Optional[User]:        """鑾峰彇褰撳墠鐢ㄦ埛淇℃伅"""        return self._me
+import asyncio
+import logging
+from typing import Optional
+from telethon import TelegramClient as TelethonClient
+from telethon.errors import SessionPasswordNeededError
+from telethon.tl.types import User
+from .base import BaseClient
+from utils.config import config
+
+class TelegramClient(BaseClient):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.logger = logging.getLogger("alyce.client.telegram")
+        self.client: Optional[TelethonClient] = None
+        self._me: Optional[User] = None
+
+    async def connect(self) -> bool:
+        api_id = config.get_int("API_ID")
+        api_hash = config.get("API_HASH")
+        phone = config.get("PHONE")
+        if not all([api_id, api_hash, phone]):
+            self.logger.error("Missing API_ID, API_HASH, or PHONE in config.")
+            return False
+        self.client = TelethonClient(str(config.get_session_path()), api_id, api_hash)
+        await self.client.connect()
+        if not await self.client.is_user_authorized():
+            await self._login(phone)
+        self._me = await self.client.get_me()
+        self.logger.info(f"Logged in as {self._me.first_name} (@{getattr(self._me, 'username', None) or 'N/A'})")
+        return True
+
+    async def _login(self, phone: str):
+        await self.client.send_code_request(phone)
+        code = input("Enter the code you received: ").strip()
+        try:
+            await self.client.sign_in(phone, code)
+        except SessionPasswordNeededError:
+            password = input("Enter your 2FA password: ").strip()
+            await self.client.sign_in(password=password)
+
+    async def disconnect(self):
+        if self.client and self.client.is_connected():
+            await self.client.disconnect()
+            self.logger.info("Disconnected from Telegram")
+
+    async def is_connected(self) -> bool:
+        return bool(self.client and self.client.is_connected())
+
+    @property
+    def me(self) -> Optional[User]:
+        return self._me
