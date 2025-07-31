@@ -1,1 +1,61 @@
-﻿"""鎻掍欢鍩虹被鎵€鏈夋彃浠跺繀椤荤户鎵挎绫伙紝瀹氫箟浜嗘彃浠剁殑鍩烘湰鍏冩暟鎹拰鐢熷懡鍛ㄦ湡閽╁瓙銆?"""import loggingfrom abc import ABC, abstractmethodfrom typing import Any, Dict, Optionalclass BasePlugin(ABC):    """鎻掍欢鍩虹被, 鎵€鏈夋彃浠跺繀椤荤户鎵挎绫?""        # 鎻掍欢鍏冩暟鎹?    name: str = "base_plugin"    "鎻掍欢鍞竴鏍囪瘑绗? 寤鸿浣跨敤灏忓啓涓嬪垝绾垮懡鍚?        version: str = "0.1.0"    "鎻掍欢鐗堟湰"        description: str = ""    "鎻掍欢鎻忚堪"        enabled: bool = True    "鏄惁鍚敤鎻掍欢"        def __init__(self, client):        """        鍒濆鍖栨彃浠?                Args:            client: AlyceClient 瀹炰緥        """        self.client = client        self.logger = logging.getLogger(f'alyce.plugin.{self.name}')        self.config: Dict[str, Any] = {}        async def initialize(self):        """鍒濆鍖栨彃浠?""        await self.on_load()        self.logger.info(f"Initializing plugin: {self.name}")        async def cleanup(self):        """娓呯悊鎻掍欢璧勬簮"""        self.logger.info(f"Cleaning up plugin: {self.name}")        def __str__(self) -> str:        return f"{self.__class__.__name__}(name={self.name}, version={self.version})"        def __repr__(self) -> str:        return str(self)
+"""
+Alyce Plugin Base Class
+
+All plugins must inherit from this class. It defines the basic metadata
+and lifecycle hooks for a plugin.
+"""
+
+import logging
+from abc import ABC, abstractmethod
+from typing import Any, Dict
+
+
+class BasePlugin(ABC):
+    """
+    Abstract base class for all Alyce plugins.
+
+    Attributes:
+        name (str): A unique identifier for the plugin (e.g., 'my_awesome_plugin').
+        version (str): The version of the plugin (e.g., '0.1.0').
+        description (str): A brief description of what the plugin does.
+        enabled (bool): Whether the plugin is currently enabled.
+    """
+
+    # --- Plugin Metadata ---
+    name: str = "unnamed_plugin"
+    version: str = "0.0.1"
+    description: str = "No description provided."
+    enabled: bool = True
+
+    def __init__(self, client: Any):
+        """
+        Initializes the plugin.
+
+        Args:
+            client: The main Alyce client instance.
+        """
+        self.client = client
+        self.logger = logging.getLogger(f"alyce.plugin.{self.name}")
+        self.config: Dict[str, Any] = {}  # Plugin-specific configuration
+
+    async def on_load(self) -> None:
+        """
+        Asynchronous hook called when the plugin is loaded and initialized.
+        Use this for setup tasks like registering commands or event handlers.
+        """
+        pass
+
+    async def on_unload(self) -> None:
+        """
+        Asynchronous hook called when the plugin is unloaded or the client shuts down.
+        Use this for cleanup tasks.
+        """
+        pass
+
+    def __str__(self) -> str:
+        """Returns a string representation of the plugin."""
+        return f"{self.__class__.__name__}(name='{self.name}', version='{self.version}')"
+
+    def __repr__(self) -> str:
+        """Returns a detailed string representation of the plugin."""
+        return str(self)
