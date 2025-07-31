@@ -54,7 +54,8 @@ PHONE=your_phone_number  # with country code, e.g., +1234567890
                             try:
                                 msg = await client.get_messages(dialog.id, ids=int(msg_id))
                                 if msg:
-                                    await msg.edit("🔁 **重启完成**，🔐 **无需重新登录。**", parse_mode='markdown')
+                                    from alyce import __version__
+                                    await msg.edit(f"🔁 **重启完成** <code>v{__version__}</code>，🔐 **无需重新登录。**", parse_mode='html')
                                     break
                             except Exception:
                                 continue

@@ -7,8 +7,9 @@ async def update_cmd(event, args, sent=None):
     # 步骤进度模板
     def progress(steps):
         return '\n'.join(steps)
+    from alyce import __version__
     steps = [
-        "✨ **[Alyce] 正在更新中...**",
+        f"✨ **[Alyce] 正在更新中...**  <code>v{__version__}</code>",
         "请稍候，系统即将自动升级并重启。",
         "",
         "",  # 代码更新
