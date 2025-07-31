@@ -4,10 +4,16 @@ class CommandRegistry:
     def __init__(self):
         self._commands = {}
 
-    def register(self, name, handler, description=None):
+    def register(self, name, handler, description=None, usage='', aliases=None, group='', permission='user', trigger_mode='exact', meta=None):
         self._commands[name] = {
             'handler': handler,
-            'description': description or ''
+            'description': description or '',
+            'usage': usage or '',
+            'aliases': aliases or [],
+            'group': group or '',
+            'permission': permission or 'user',
+            'trigger_mode': trigger_mode or 'exact',
+            'meta': meta,
         }
 
     def get(self, name):
