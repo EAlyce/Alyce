@@ -1,4 +1,5 @@
-"""Alyce Client Base Class
+"""Alyce Client Base Class"""
+
 
 
 import asyncio
@@ -8,16 +9,17 @@ from typing import Any, Dict, Optional
 class BaseClient(ABC):
     """Alyce Base Client"""
     def __init__(self, **kwargs):
-        """BaseClient init
+        """BaseClient init.
+
         Args:
-            **kwargs: config dict
+            **kwargs: config dict.
         """
         self.config = kwargs
         self.client = None
 
     @abstractmethod
     async def connect(self) -> bool:
-        """Connect to service"""
+        """Connect to service."""
         pass
 
     @abstractmethod
