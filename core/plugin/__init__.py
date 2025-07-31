@@ -1,1 +1,9 @@
-﻿"""鎻掍欢绯荤粺妯″潡"""from .base import BasePluginfrom .manager import PluginManager__all__ = [    'BasePlugin',    'PluginManager']
+"""Alyce Plugin System Module"""
+
+from .base import BasePlugin
+from .manager import PluginManager
+
+__all__ = [
+    'BasePlugin',
+    'PluginManager',
+]
