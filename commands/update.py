@@ -69,7 +69,10 @@ async def update_cmd(event, args, sent=None):
                 if mod.startswith('commands.') and mod != 'commands.base' and mod != 'commands.listener':
                     importlib.reload(sys.modules[mod])
                     reloaded.append(mod)
-            steps[5] = "🧩 正在热加载插件..."
+            steps[5] = "🧩 插件热加载中..."
+            msg = progress(steps)
+            await safe_edit(msg)
+            steps[5] = "✅ 插件热加载完成，Alyce 功能已刷新！"
             msg = progress(steps)
             await safe_edit(msg)
             return
