@@ -37,13 +37,16 @@ async def apt_cmd(event, args, sent=None):
             await edit("未找到相关插件。")
     elif subcmd == 'install':
         import sys, importlib, os
-        # 支持对着 .py 文件回复自动安装
+        # 支持对着 .py 文件回复自动安装（更宽容的 MIME 类型和文件名判断）
         if not param and getattr(event, 'reply_to_msg_id', None):
             reply_msg = await event.get_reply_message()
-            if reply_msg and reply_msg.document and reply_msg.document.mime_type == 'text/x-python':
-                doc = reply_msg.document
+            doc = getattr(reply_msg, 'document', None)
+            if doc:
                 fname = getattr(doc, 'file_name', None) or getattr(doc, 'filename', None) or getattr(doc, 'name', None)
-                if fname and fname.endswith('.py'):
+                mime = getattr(doc, 'mime_type', None) or ''
+                if fname and fname.endswith('.py') and (
+                    'python' in mime or mime == 'application/octet-stream' or mime == ''
+                ):
                     target_path = os.path.join('commands', fname)
                     await edit(f"[Alyce] 正在保存插件文件 {fname} ...")
                     try:
@@ -57,9 +60,9 @@ async def apt_cmd(event, args, sent=None):
                     except Exception as e:
                         await edit(f"插件文件保存或加载失败：{e}")
                     return
-        # 兼容原有市场插件名安装
+        # 仅在既无参数又未 reply .py 文件时才提示用法
         if not param:
-            await edit("用法: +apt install <插件名> 或回复 .py 插件文件")
+            await edit("用法: +apt install <插件名>\n或直接回复 .py 插件文件后输入: +apt install")
             return
         from .plugin_market import fetch_market, download_plugin, check_permissions
         market = await fetch_market()
